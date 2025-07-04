@@ -1,7 +1,4 @@
-/* Este arquivo permanece EXATAMENTE igual à versão anterior de modo escuro */
-
 :root {
-    /* Cores Padrao (AGORA SAO AS CORES DO MODO ESCURO) */
     --primary-color: #8AB4F8;
     --secondary-color: #81C995;
     --text-color: #E8EAED;
@@ -18,6 +15,11 @@
     --table-even-row: #383838;
     --table-hover-row: #4A4A4A;
     --placeholder-bg: #3A3B3C;
+}
+
+/* Base box-sizing para evitar vazamento de padding */
+*, *::before, *::after {
+    box-sizing: border-box;
 }
 
 body {
@@ -93,7 +95,7 @@ h1 {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     font-size: 1em;
-    min-width: 150px;
+    min-width: 150px; /* Mantido para desktop, será alterado em mobile */
     box-shadow: inset 0 1px 3px var(--shadow-light);
     background-color: var(--card-bg);
     color: var(--text-color);
@@ -161,14 +163,48 @@ button:active {
     background-color: #71757a;
 }
 
-#toggleAddFormBtn {
+/* BOTÕES DE ADIÇÃO (DESKTOP E MOBILE) */
+#toggleAddFormBtnDesktop { /* Este é o botão normal que aparece no fluxo do desktop */
     background-color: var(--success-color);
     color: var(--text-color);
     margin-bottom: 20px;
+    display: block; /* Visível por padrão no desktop */
 }
-#toggleAddFormBtn:hover {
+#toggleAddFormBtnDesktop:hover {
     background-color: #70b885;
 }
+
+#mobile-fixed-add-button-container { /* Container para o botão fixo do mobile */
+    display: none; /* Oculto por padrão, só aparece em mobile */
+}
+
+.mobile-add-btn { /* Estilo para o botão fixo do mobile */
+    position: fixed;
+    bottom: 20px; /* Ajuste para não ficar colado na borda inferior */
+    right: 20px; /* Ajuste para não ficar colado na borda direita */
+    width: 60px; /* Tamanho fixo para o botão redondo */
+    height: 60px;
+    border-radius: 50%; /* Redondo */
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 30px; /* Tamanho do ícone '+' */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    z-index: 1000; /* Garante que fique acima de outros elementos */
+    line-height: 1; /* Alinha o '+' verticalmente */
+    padding: 0; /* Remove padding extra */
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+.mobile-add-btn:hover {
+    background-color: #3a7bd5;
+    transform: scale(1.05);
+}
+.mobile-add-btn .plus-icon {
+    margin-top: -3px; /* Pequeno ajuste para centralizar o '+' */
+}
+
 
 .actions button {
     padding: 8px 12px;
@@ -203,8 +239,16 @@ button:active {
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* --- Estilos para o modo de Lista (Tabela) --- */
+#displayContainer {
+    overflow-x: auto; /* Permite a rolagem horizontal da tabela se necessário */
+    -webkit-overflow-scrolling: touch; /* Suaviza rolagem em iOS */
+    padding-bottom: 10px; /* Para evitar que a barra de rolagem corte o conteúdo */
+}
+
 #mediaTable {
     width: 100%;
+    min-width: 600px; /* Garante que a tabela tenha uma largura mínima para forçar a rolagem em telas pequenas */
     border-collapse: separate;
     border-spacing: 0;
     margin-top: 25px;
@@ -242,6 +286,7 @@ button:active {
     transition: background-color 0.3s ease;
 }
 
+/* --- Estilos para o modo de Grade (Grid) --- */
 #mediaGrid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
@@ -367,33 +412,139 @@ button:active {
     to { opacity: 1; }
 }
 
+/* --- Media Queries para Responsividade --- */
 @media (max-width: 768px) {
-    .input-group {
+    #toggleViewBtn, 
+    #clearListBtn {
+        display: none;
+    }
+    body {
+        padding: 10px; /* Reduz o padding geral em telas menores */
+    }
+
+    .container {
+        padding: 15px; /* Reduz o padding interno do container */
+    }
+
+    h1 {
+        font-size: 1.6em; /* Reduz o tamanho do título principal */
+        margin-bottom: 15px;
+    }
+
+    .section-title {
+        font-size: 1.1em; /* Reduz o tamanho dos títulos de seção */
+        margin-bottom: 10px;
+    }
+
+    /* Esconde o botão de adição de desktop em mobile */
+    #toggleAddFormBtnDesktop {
+        display: none;
+    }
+
+    /* Mostra o container do botão fixo em mobile */
+    #mobile-fixed-add-button-container {
+        display: block;
+    }
+
+    /* Esconde Alternar Visualização e Limpar Lista em Mobile (se a ideia é só lista e aleatório) */
+    /* Para mostrar apenas lista e aleatorio:
+    #toggleViewBtn, #clearListBtn {
+        display: none;
+    }
+    */
+    /* Se quiser que continuem aparecendo, remova este bloco.
+       Vou deixar visíveis para manter as funcionalidades. */
+
+
+    .input-group, .controls {
         flex-direction: column;
         align-items: stretch;
+        gap: 10px;
+        margin-bottom: 15px; /* Reduz margem de controles/input-group */
     }
+
+    .input-group label {
+        margin-bottom: 2px;
+    }
+
     .input-group input[type="text"],
     .input-group select,
     .input-group button {
         width: 100%;
         flex-basis: auto;
+        font-size: 0.95em;
+        padding: 10px 15px;
     }
+
+    /* Correção para o vazamento dos campos na seção de adição */
+    #addMediaSection {
+        padding: 15px; /* Reduz o padding interno */
+        margin-bottom: 15px; /* Reduz a margem inferior */
+    }
+    #addMediaSection .input-group input[type="text"],
+    #addMediaSection .input-group select {
+        min-width: unset; /* Remove min-width fixo para permitir encolher */
+    }
+    #addMediaSection .input-group .full-width {
+        flex-basis: 100%; /* Garante que ocupem a largura total */
+    }
+
+
     .actions button {
         margin-right: 0;
         margin-bottom: 8px;
         width: 100%;
     }
-    .controls {
-        flex-direction: column;
-        align-items: stretch;
+
+    /* Ajustes específicos para o grid em telas menores */
+    #mediaGrid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+        gap: 15px;
+        padding: 5px;
+    }
+
+    .grid-item .poster-container {
+        height: 100px;
+    }
+    .grid-item .item-details {
+        padding: 10px;
+    }
+    .grid-item .item-details .title {
+        font-size: 1em;
+        min-height: 2.4em;
+    }
+    .grid-item .item-details .type {
+        font-size: 0.85em;
+        margin-bottom: 10px;
+    }
+    .grid-item .actions {
+        gap: 5px;
+        padding-top: 8px;
+    }
+    .grid-item .actions button {
+        padding: 8px 10px;
+        font-size: 0.85em;
+        min-width: unset;
+    }
+}
+
+/* Media Query para celulares MUITO pequenos (larguras menores que 360px) */
+@media (max-width: 360px) {
+    #toggleViewBtn, 
+    #clearListBtn {
+        display: none;
     }
     #mediaGrid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+        grid-template-columns: 1fr; /* Força uma coluna única em telas muito estreitas */
     }
     .grid-item .poster-container {
-        height: 210px;
+        height: 280px; /* Altura um pouco maior para imagem em coluna única */
     }
-    #toggleAddFormBtn {
-        width: 100%;
+    .mobile-add-btn {
+        width: 50px; /* Botão menor em telas muito pequenas */
+        height: 50px;
+        font-size: 25px;
+        bottom: 15px;
+        right: 15px;
     }
 }
