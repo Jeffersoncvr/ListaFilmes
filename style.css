@@ -368,32 +368,82 @@ button:active {
 }
 
 @media (max-width: 768px) {
-    .input-group {
-        flex-direction: column;
-        align-items: stretch;
+    /* Oculta todos os elementos exceto grade e botão aleatório */
+    #toggleAddFormBtn,
+    #addMediaSection,
+    #mediaTable,
+    #toggleViewBtn,
+    #clearListBtn,
+    .section-title:not(:has(+ #mediaGrid)),
+    h1 {
+        display: none !important;
     }
-    .input-group input[type="text"],
-    .input-group select,
-    .input-group button {
-        width: 100%;
-        flex-basis: auto;
-    }
-    .actions button {
-        margin-right: 0;
-        margin-bottom: 8px;
-        width: 100%;
-    }
+
     .controls {
+        display: flex;
         flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
         align-items: stretch;
     }
-    #mediaGrid {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+
+    .grid-view #mediaGrid {
+        display: grid !important;
     }
-    .grid-item .poster-container {
-        height: 210px;
-    }
-    #toggleAddFormBtn {
+
+    #randomBtn {
         width: 100%;
+        margin-top: 10px;
+    }
+
+    #randomResult {
+        margin-top: 10px;
+    }
+
+    body {
+        padding: 10px;
+    }
+
+    .container {
+        padding: 15px;
+        box-shadow: none;
+        background: none;
+    }
+    
+}
+@media (max-width: 768px) {
+    #mediaGrid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 10px;
+    }
+
+    .grid-item {
+        border-radius: 8px;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .grid-item .poster-container {
+        height: 180px;
+    }
+
+    .grid-item .item-details {
+        padding: 10px;
+    }
+
+    .grid-item .item-details .title {
+        font-size: 0.9em;
+        min-height: unset;
+        -webkit-line-clamp: 2;
+    }
+
+    .grid-item .item-details .type {
+        font-size: 0.8em;
+        margin-bottom: 10px;
+    }
+
+    .grid-item .actions button {
+        font-size: 0.8em;
+        min-width: 80px;
+        padding: 6px 8px;
     }
 }
