@@ -330,7 +330,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // --- Inicialização ---
-    setInitialView(); // Define a visualização inicial (lista ou grid)
-    // renderMedia() será chamada pelo listener do Firestore na primeira carga
+    setInitialView();
+    // Forçar modo grade no mobile
+    if (window.innerWidth <= 768) {
+        currentViewMode = 'grid';
+        setInitialView();
+    }
 });
