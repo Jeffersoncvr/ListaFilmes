@@ -5,12 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Minha Lista de Filmes e Séries</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css"> </head>
+    <link rel="stylesheet" href="style.css">
+</head>
 <body>
+    <div id="mobile-fixed-add-button-container">
+        <button id="toggleAddFormBtnMobile" class="mobile-add-btn">
+            <span class="plus-icon">+</span> </button>
+    </div>
+
     <div class="container">
         <h1>Minha Lista de Filmes e Séries</h1>
 
-        <button id="toggleAddFormBtn" class="full-width">Adicionar Novo Filme/Série</button>
+        <button id="toggleAddFormBtnDesktop" class="full-width">Adicionar Novo Filme/Série</button>
 
         <div id="addMediaSection">
             <h2 class="section-title">Adicionar Filme/Série</h2>
@@ -60,7 +66,6 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    <script src="script.js"></script> </body>
+    <script src="script.js"></script>
+</body>
 </html>
