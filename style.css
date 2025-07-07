@@ -447,3 +447,22 @@ button:active {
         padding: 6px 8px;
     }
 }
+.filter-section {
+  margin: 15px 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-section label {
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.filter-section select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  border: 1px solid var(--border-color);
+}
