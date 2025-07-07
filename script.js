@@ -15,8 +15,10 @@ firebase.initializeApp(firebaseConfig);
 // Obtenha uma referência ao Firestore
 const db = firebase.firestore();
 const mediaCollection = db.collection('mediaList'); // O nome da sua coleção no Firestore
+let currentFilter = 'todos';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const filterSelect = document.getElementById('filterSelect');
     const mediaTableBody = document.querySelector('#mediaTable tbody');
     const mediaGridDiv = document.getElementById('mediaGrid');
     const displayContainer = document.getElementById('displayContainer');
@@ -35,6 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentViewMode = localStorage.getItem('viewMode') || 'list';
 
     // --- Funções de Visualização ---
+
+    filterSelect.addEventListener('change', (e) => {
+        currentFilter = e.target.value;
+        // re-renderiza com os dados do snapshot atual
+        mediaCollection.orderBy('createdAt', 'asc').get().then(snapshot => {
+            renderMedia(snapshot.docs);
+        });
+    });
 
     function setInitialView() {
         displayContainer.classList.remove('list-view', 'grid-view');
@@ -61,10 +71,18 @@ document.addEventListener('DOMContentLoaded', () => {
         mediaTableBody.innerHTML = '';
         mediaGridDiv.innerHTML = '';
 
-        const mediaListFromFirestore = [];
+        let mediaListFromFirestore = [];
         docs.forEach(doc => {
             mediaListFromFirestore.push({ id: doc.id, ...doc.data() });
         });
+
+        // Aplica o filtro
+        if (currentFilter === 'assistido') {
+            mediaListFromFirestore = mediaListFromFirestore.filter(m => m.watched);
+        } else if (currentFilter === 'nao-assistido') {
+            mediaListFromFirestore = mediaListFromFirestore.filter(m => !m.watched);
+        }
+
 
         if (mediaListFromFirestore.length === 0) {
             const message = "Nenhum filme ou série na lista. Adicione um acima!";
@@ -310,6 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('viewMode', currentViewMode);
         setInitialView();
     }
+    
 
     // --- Event Listeners ---
     addCustomEntryBtn.addEventListener('click', addCustomEntry);
@@ -330,10 +349,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
+    // --- Inicialização ---
     setInitialView();
     // Forçar modo grade no mobile
     if (window.innerWidth <= 768) {
         currentViewMode = 'grid';
         setInitialView();
     }
+
+ // Define a visualização inicial (lista ou grid)
+    // renderMedia() será chamada pelo listener do Firestore na primeira carga
 });
