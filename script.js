@@ -16,8 +16,10 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const mediaCollection = db.collection('mediaList'); // O nome da sua coleção no Firestore
 let currentFilter = 'todos';
+let currentSearch = '';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
     const filterSelect = document.getElementById('filterSelect');
     const mediaTableBody = document.querySelector('#mediaTable tbody');
     const mediaGridDiv = document.getElementById('mediaGrid');
@@ -45,6 +47,14 @@ document.addEventListener('DOMContentLoaded', () => {
             renderMedia(snapshot.docs);
         });
     });
+
+    searchInput.addEventListener('input', (e) => {
+        currentSearch = e.target.value.toLowerCase();
+        mediaCollection.orderBy('createdAt', 'asc').get().then(snapshot => {
+            renderMedia(snapshot.docs);
+        });
+    });
+
 
     function setInitialView() {
         displayContainer.classList.remove('list-view', 'grid-view');
@@ -82,6 +92,12 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (currentFilter === 'nao-assistido') {
             mediaListFromFirestore = mediaListFromFirestore.filter(m => !m.watched);
         }
+        if (currentSearch) {
+            mediaListFromFirestore = mediaListFromFirestore.filter(m =>
+                m.title.toLowerCase().includes(currentSearch)
+            );
+        }
+
 
 
         if (mediaListFromFirestore.length === 0) {
