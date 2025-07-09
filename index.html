@@ -18,6 +18,8 @@
                 <label for="manualTitleInput" class="full-width">Título:</label>
                 <input type="text" id="manualTitleInput" placeholder="Título do filme/série" required>
                 
+
+                
                 <label for="manualTypeInput" class="full-width">Tipo:</label>
                 <select id="manualTypeInput">
                     <option value="Filme">Filme</option>
@@ -72,6 +74,16 @@
 
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-firestore-compat.js"></script>
-    <script src="script.js"></script> </body>
+    <script src="script.js"></script> 
+    <div id="modalOverlay" class="modal-overlay">
+        <div class="modal">
+            <button class="close-modal">&times;</button>
+            <div id="modalContent">
+            <p>Carregando...</p>
+            </div>
+        </div>
+    </div>
+
+</body>
     
 </html>
