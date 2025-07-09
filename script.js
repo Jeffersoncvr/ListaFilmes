@@ -335,8 +335,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (unwatchedMedia.length > 0) {
                 const randomIndex = Math.floor(Math.random() * unwatchedMedia.length);
                 const chosenMedia = unwatchedMedia[randomIndex];
-                randomResult.textContent = `Que tal assistir: ${chosenMedia.title} (${chosenMedia.type})?`;
-                randomResult.style.display = 'block';
+                randomResult.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <img src="${chosenMedia.poster && chosenMedia.poster !== 'N/A' ? chosenMedia.poster : 'https://via.placeholder.com/80x120?text=Sem+Imagem'}" alt="Poster" style="width: 80px; height: auto; border-radius: 6px;">
+                    <div>
+                    <strong>${chosenMedia.title}</strong><br>
+                    <em>${chosenMedia.type}</em>
+                    </div>
+                </div>
+                `;
+            randomResult.style.display = 'block';
             } else {
                 randomResult.textContent = 'Não há filmes ou séries não assistidos na lista!';
                 randomResult.style.display = 'block';
