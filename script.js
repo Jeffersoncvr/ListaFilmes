@@ -19,6 +19,8 @@ let currentFilter = 'todos';
 let currentSearch = '';
 
 document.addEventListener('DOMContentLoaded', () => {
+    const suggestionsList = document.getElementById('titleSuggestions');
+
     const searchInput = document.getElementById('searchInput');
     const filterSelect = document.getElementById('filterSelect');
     const mediaTableBody = document.querySelector('#mediaTable tbody');
@@ -37,6 +39,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const addCustomEntryBtn = document.getElementById('addCustomEntryBtn');
 
     let currentViewMode = localStorage.getItem('viewMode') || 'list';
+
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalContent = document.getElementById('modalContent');
+    const closeModalBtn = document.querySelector('.close-modal');
+
+    closeModalBtn.addEventListener('click', () => {
+        modalOverlay.style.display = 'none';
+        modalContent.innerHTML = '';
+    });
+
 
     // --- Funções de Visualização ---
 
@@ -215,6 +227,31 @@ document.addEventListener('DOMContentLoaded', () => {
                 itemDetails.appendChild(actionsGrid);
                 gridItem.appendChild(itemDetails);
                 mediaGridDiv.appendChild(gridItem);
+                gridItem.addEventListener('click', async () => {
+    modalOverlay.style.display = 'flex';
+    modalContent.innerHTML = '<p>Carregando...</p>';
+
+    const info = await fetchTMDbDetails(media.title);
+    if (info) {
+        const poster = info.poster_path
+            ? `https://image.tmdb.org/t/p/w500${info.poster_path}`
+            : 'https://via.placeholder.com/100x150?text=Sem+Imagem';
+
+        const genres = info.genres.map(g => g.name).join(', ');
+
+        modalContent.innerHTML = `
+            <img src="${poster}" alt="Poster">
+            <h2>${info.title} (${info.release_date?.slice(0, 4) || 'Ano N/D'})</h2>
+            <p><strong>Gêneros:</strong> ${genres || 'Não disponível'}</p>
+            <p><strong>Nota:</strong> ${info.vote_average || 'N/D'}</p>
+            <p><strong>Sinopse:</strong> ${info.overview || 'Sem sinopse disponível.'}</p>
+        `;
+    } else {
+        modalContent.innerHTML = `<p>Não foi possível encontrar informações para <strong>${media.title}</strong>.</p>`;
+    }
+});
+
+
             });
         }
     }
@@ -376,3 +413,24 @@ document.addEventListener('DOMContentLoaded', () => {
  // Define a visualização inicial (lista ou grid)
     // renderMedia() será chamada pelo listener do Firestore na primeira carga
 });
+
+async function fetchTMDbDetails(title) {
+    const apiKey = "014a1c3cf4571d1247d7d2d939d65908";
+    try {
+        const searchRes = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(title)}&language=pt-BR`);
+        const searchData = await searchRes.json();
+
+        if (searchData.results.length === 0) return null;
+
+        const movie = searchData.results[0];
+
+        const detailRes = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${apiKey}&language=pt-BR`);
+        const detailData = await detailRes.json();
+
+        return detailData;
+    } catch (err) {
+        console.error("Erro ao buscar no TMDb:", err);
+        return null;
+    }
+}
+
