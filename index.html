@@ -7,31 +7,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css"> </head>
 <body>
-    <div class="container">
-        <h1>Minha Lista de Filmes e Séries</h1>
+        <div class="container">
+            <h1>Minha Lista de Filmes e Séries</h1>
 
-        <button id="toggleAddFormBtn" class="full-width">Adicionar Novo Filme/Série</button>
-
-        <div id="addMediaSection">
-            <h2 class="section-title">Adicionar Filme/Série</h2>
-            <div class="input-group">
-                <label for="manualTitleInput" class="full-width">Título:</label>
-                <input type="text" id="manualTitleInput" placeholder="Título do filme/série" required>
-                
-
-                
-                <label for="manualTypeInput" class="full-width">Tipo:</label>
-                <select id="manualTypeInput">
-                    <option value="Filme">Filme</option>
-                    <option value="Série">Série</option>
-                </select>
-                
-                <label for="manualPosterInput" class="full-width">Link do Poster (URL - opcional):</label>
-                <input type="text" id="manualPosterInput" placeholder="Cole a URL da imagem aqui">
-
-                <button id="addCustomEntryBtn" class="full-width">Adicionar à Lista</button>
-            </div>
+            <div id="addMediaBox">
+            <label for="searchInputTMDb">Adicionar Filme (TMDb):</label>
+            <input type="text" id="searchInputTMDb" placeholder="Digite o nome do filme...">
+            <ul id="titleSuggestions" class="suggestions-list"></ul>
         </div>
+
 
         <h2 class="section-title">Minha Lista Completa</h2>
         <div class="controls">
