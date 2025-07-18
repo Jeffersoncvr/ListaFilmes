@@ -18,9 +18,7 @@ const mediaCollection = db.collection('mediaList'); // O nome da sua coleção n
 let currentFilter = 'todos';
 let currentSearch = '';
 
-document.addEventListener('DOMContentLoaded', () => {
-    const suggestionsList = document.getElementById('titleSuggestions');
-
+document.addEventListener('DOMContentLoaded', () => { 
     const searchInput = document.getElementById('searchInput');
     const filterSelect = document.getElementById('filterSelect');
     const mediaTableBody = document.querySelector('#mediaTable tbody');
@@ -30,13 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const randomResult = document.getElementById('randomResult');
     const clearListBtn = document.getElementById('clearListBtn');
     const toggleViewBtn = document.getElementById('toggleViewBtn');
-    const toggleAddFormBtn = document.getElementById('toggleAddFormBtn');
-    const addMediaSection = document.getElementById('addMediaSection');
 
-    const manualTitleInput = document.getElementById('manualTitleInput');
-    const manualTypeInput = document.getElementById('manualTypeInput');
-    const manualPosterInput = document.getElementById('manualPosterInput');
-    const addCustomEntryBtn = document.getElementById('addCustomEntryBtn');
 
     let currentViewMode = localStorage.getItem('viewMode') || 'list';
 
@@ -51,6 +43,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- Funções de Visualização ---
+    const searchInputTMDb = document.getElementById('searchInputTMDb');
+    const suggestionsList = document.getElementById('titleSuggestions');
+
+    let debounceTimeout;
+    searchInputTMDb.addEventListener('input', () => {
+        
+        const query = searchInputTMDb.value.trim();
+        clearSuggestions();
+
+        if (query.length < 2) return;
+
+        clearTimeout(debounceTimeout);
+        debounceTimeout = setTimeout(async () => {
+            const results = await searchTMDbTitles(query);
+            results.slice(0, 6).forEach(movie => {
+                const li = document.createElement('li');
+                li.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'Ano N/D'})`;
+                li.addEventListener('click', () => selectTMDbMovie(movie));
+                suggestionsList.appendChild(li);
+            });
+        }, 300);
+    });
+
 
     filterSelect.addEventListener('change', (e) => {
         currentFilter = e.target.value;
@@ -74,18 +89,6 @@ document.addEventListener('DOMContentLoaded', () => {
         toggleViewBtn.textContent = `Alternar Visualização (${currentViewMode === 'list' ? 'Grade' : 'Lista'})`;
     }
 
-    function toggleAddForm() {
-        if (addMediaSection.style.display === 'none' || addMediaSection.style.display === '') {
-            addMediaSection.style.display = 'block';
-            toggleAddFormBtn.textContent = 'Fechar Formulário';
-        } else {
-            addMediaSection.style.display = 'none';
-            toggleAddFormBtn.textContent = 'Adicionar Novo Filme/Série';
-            manualTitleInput.value = '';
-            manualPosterInput.value = '';
-            manualTypeInput.value = 'Filme';
-        }
-    }
 
     // FUNÇÃO PRINCIPAL DE RENDERIZAÇÃO
     // Agora ela recebe os dados diretamente do Firestore
@@ -293,35 +296,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function addCustomEntry() {
-        const title = manualTitleInput.value.trim();
-        const type = manualTypeInput.value;
-        const poster = manualPosterInput.value.trim();
-
-        if (!title) {
-            alert('O título é obrigatório para adicionar um filme/série.');
-            return;
-        }
-
-        const newMedia = {
-            title: title,
-            type: type,
-            poster: poster || 'https://via.placeholder.com/60x90?text=Sem+Poster', // Placeholder padrão
-            watched: false,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp() // Para ordenar, opcional
-        };
-
-        try {
-            await mediaCollection.add(newMedia);
-            // Firestore listener cuidará da re-renderização
-            manualTitleInput.value = '';
-            manualPosterInput.value = '';
-            manualTypeInput.value = 'Filme';
-        } catch (error) {
-            console.error("Erro ao adicionar:", error);
-            alert("Erro ao adicionar o filme/série. Verifique as regras do Firebase.");
-        }
-    }
     
     async function chooseRandomUnwatched() {
         // Puxa todos os documentos para filtrar localmente
@@ -392,11 +366,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
 
     // --- Event Listeners ---
-    addCustomEntryBtn.addEventListener('click', addCustomEntry);
     randomBtn.addEventListener('click', chooseRandomUnwatched);
     clearListBtn.addEventListener('click', clearList);
     toggleViewBtn.addEventListener('click', toggleView);
-    toggleAddFormBtn.addEventListener('click', toggleAddForm);
 
     // --- Firestore Realtime Listener ---
     // Esta é a parte mágica que mantém sua UI sincronizada com o banco de dados
@@ -422,6 +394,47 @@ document.addEventListener('DOMContentLoaded', () => {
     // renderMedia() será chamada pelo listener do Firestore na primeira carga
 });
 
+
+
+function clearSuggestions() {
+    suggestionsList.innerHTML = '';
+}
+
+async function searchTMDbTitles(query) {
+    const apiKey = "014a1c3cf4571d1247d7d2d939d65908";
+    const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=pt-BR`);
+    const data = await res.json();
+    return data.results || [];
+}
+
+async function selectTMDbMovie(movie) {
+    clearSuggestions();
+    const apiKey = "014a1c3cf4571d1247d7d2d939d65908";
+    const res = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${apiKey}&language=pt-BR`);
+    const data = await res.json();
+
+    const newMedia = {
+        title: data.title,
+        type: "Filme",
+        poster: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
+        watched: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    try {
+        await mediaCollection.add(newMedia);
+        searchInputTMDb.value = '';
+        alert("Filme adicionado com sucesso!");
+    } catch (err) {
+        alert("Erro ao adicionar o filme.");
+        console.error(err);
+    }
+}
+
+
+
+
+
 async function fetchTMDbDetails(title) {
     const apiKey = "014a1c3cf4571d1247d7d2d939d65908";
     try {
@@ -440,5 +453,69 @@ async function fetchTMDbDetails(title) {
         console.error("Erro ao buscar no TMDb:", err);
         return null;
     }
+
 }
 
+// ===== AUTOCOMPLETE TMDb =====
+
+const searchInputTMDb = document.getElementById('searchInputTMDb');
+const suggestionsList = document.getElementById('titleSuggestions');
+let debounceTimeout;
+
+searchInputTMDb.addEventListener('input', () => {
+  const query = searchInputTMDb.value.trim();
+  clearSuggestions();
+
+  if (query.length < 2) return;
+
+  clearTimeout(debounceTimeout);
+  debounceTimeout = setTimeout(async () => {
+    const results = await searchTMDbTitles(query);
+    results.slice(0, 6).forEach(movie => {
+      const li = document.createElement('li');
+      li.textContent = `${movie.title} (${movie.release_date?.slice(0, 4) || 'Ano N/D'})`;
+      li.addEventListener('click', () => selectTMDbMovie(movie));
+      suggestionsList.appendChild(li);
+    });
+  }, 300);
+});
+
+function clearSuggestions() {
+  suggestionsList.innerHTML = '';
+}
+
+async function searchTMDbTitles(query) {
+  const apiKey = "014a1c3cf4571d1247d7d2d939d65908";
+  try {
+    const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${apiKey}&query=${encodeURIComponent(query)}&language=pt-BR`);
+    const data = await res.json();
+    return data.results || [];
+  } catch (error) {
+    console.error("Erro ao buscar títulos na TMDb:", error);
+    return [];
+  }
+}
+
+async function selectTMDbMovie(movie) {
+  clearSuggestions();
+  const apiKey = "014a1c3cf4571d1247d7d2d939d65908";
+  const res = await fetch(`https://api.themoviedb.org/3/movie/${movie.id}?api_key=${apiKey}&language=pt-BR`);
+  const data = await res.json();
+
+  const newMedia = {
+    title: data.title,
+    type: "Filme",
+    poster: data.poster_path ? `https://image.tmdb.org/t/p/w500${data.poster_path}` : '',
+    watched: false,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+
+  try {
+    await mediaCollection.add(newMedia);
+    searchInputTMDb.value = '';
+    alert("Filme adicionado com sucesso!");
+  } catch (err) {
+    alert("Erro ao adicionar o filme.");
+    console.error(err);
+  }
+}
