@@ -523,3 +523,57 @@ button:active {
   cursor: pointer;
 }
 
+#addMediaBox {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+#addMediaBox input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  font-size: 1em;
+}
+/* Sugestões TMDb */
+.suggestions-list {
+  list-style: none;
+  padding: 0;
+  margin: 5px 0 15px;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px var(--shadow-light);
+  z-index: 999;
+  position: absolute;
+  width: 100%;
+}
+
+.suggestions-list li {
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.suggestions-list li:hover {
+  background-color: var(--table-hover-row);
+}
+
+#addMediaBox {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+#addMediaBox input {
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background-color: var(--card-bg);
+  color: var(--text-color);
+  font-size: 1em;
+}
